@@ -1021,11 +1021,19 @@ class BeautifulSoup(Tag):
         # print("Start tag %s: %s" % (name, attrs))
         self.endData()
 
-        # --- SoupReplacer logic: perform tag replacement during parsing ---
+        # --- SoupReplacer logic: perform tag transformations during parsing ---
         if hasattr(self, "replacer") and self.replacer is not None:
-            if name == self.replacer.og_tag:
-                name = self.replacer.alt_tag
-        # -----------------------------------------------------------------
+            # We temporarily create a fake tag-like object to transform its name/attrs before full Tag init
+            fake_tag = type("FakeTag", (), {"name": name, "attrs": dict(attrs)})
+            try:
+                # Apply all transformations
+                self.replacer.apply(fake_tag)
+                name = fake_tag.name
+                attrs = fake_tag.attrs
+            except Exception as e:
+                print(f"[SoupReplacer warning] {e}")
+        # ---------------------------------------------------------------------
+
 
 
 
@@ -1173,12 +1181,54 @@ class BeautifulStoneSoup(BeautifulSoup):
         super(BeautifulStoneSoup, self).__init__(*args, **kwargs)
 
 class SoupReplacer:
-    """Simple API that replaces one tag with another during parsing."""
-    def __init__(self, og_tag: str, alt_tag: str):
-        # og_tag: the original tag name to replace (e.g., "b")
-        # alt_tag: the tag name to replace it with (e.g., "blockquote")
+    """
+    Extended API that can modify tags during parsing.
+
+    It supports:
+      - Simple replacement of one tag with another (M2)
+      - Functional transformations for tag names, attributes, or full tags (M3)
+    """
+
+    def __init__(self, og_tag=None, alt_tag=None,
+                 name_xformer=None, attrs_xformer=None, xformer=None):
         self.og_tag = og_tag
         self.alt_tag = alt_tag
+        self.name_xformer = name_xformer
+        self.attrs_xformer = attrs_xformer
+        self.xformer = xformer
+
+    def apply(self, tag):
+        """Apply replacement or transformations to the given Tag."""
+
+        # --- M2: Simple static replacement ---
+        if self.og_tag and self.alt_tag and tag.name == self.og_tag:
+            tag.name = self.alt_tag
+
+        # --- M3: name transformer ---
+        if callable(self.name_xformer):
+            try:
+                new_name = self.name_xformer(tag)
+                if new_name:
+                    tag.name = new_name
+            except Exception as e:
+                print(f"[SoupReplacer name_xformer error] {e}")
+
+        # --- M3: attrs transformer ---
+        if callable(self.attrs_xformer):
+            try:
+                new_attrs = self.attrs_xformer(tag)
+                if new_attrs is not None:
+                    tag.attrs = new_attrs
+            except Exception as e:
+                print(f"[SoupReplacer attrs_xformer error] {e}")
+
+        # --- M3: general transformer ---
+        if callable(self.xformer):
+            try:
+                self.xformer(tag)
+            except Exception as e:
+                print(f"[SoupReplacer xformer error] {e}")
+
 
 
 # If this file is run as a script, act as an HTML pretty-printer.

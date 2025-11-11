@@ -71,5 +71,3 @@ Definition line: ~121
 class SoupStrainer:
 
 Description: Defines filters that restrict parsing to certain portions of the document to improve performance and reduce memory usage.
-```
-## Part 3
