@@ -2,7 +2,7 @@
 from bs4 import BeautifulSoup, SoupStrainer
 
 def main():
-    filename = "html53.html"
+    filename = "beautifulsoup/apps/m2/html53.html"
 
     # Parse only tags (ignore text/comments)
     strainer = SoupStrainer(True)  # True means allow all tags

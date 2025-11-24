@@ -2,7 +2,8 @@
 from bs4 import BeautifulSoup, SoupStrainer
 
 def main():
-    filename = "html53.html"
+    filename = "beautifulsoup/apps/m2/html53.html"
+
 
     # Only parse <a> tags to save memory
     strainer = SoupStrainer("a")

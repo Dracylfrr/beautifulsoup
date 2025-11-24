@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup, SoupStrainer
 
 def main():
-    filename = "html53.html"
+    filename = "beautifulsoup/apps/m2/html53.html"
 
     # Only parse tags that have an id attribute
     strainer = SoupStrainer(id=True)

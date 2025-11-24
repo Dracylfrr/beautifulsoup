@@ -1021,6 +1021,10 @@ class BeautifulSoup(Tag):
         # print("Start tag %s: %s" % (name, attrs))
         self.endData()
 
+    
+
+
+
         # --- SoupReplacer logic: perform tag transformations during parsing ---
         if hasattr(self, "replacer") and self.replacer is not None:
             # We temporarily create a fake tag-like object to transform its name/attrs before full Tag init
@@ -1068,6 +1072,17 @@ class BeautifulSoup(Tag):
         self._most_recent_element = tag
         self.pushTag(tag)
         return tag
+
+    def __iter__(self):
+        """
+        Make BeautifulSoup iterable.
+        Iterates over all nodes in the document tree using depth-first traversal.
+        Does NOT build any lists (fully generator-based).
+        """
+        # BeautifulSoup inherits .descendants from Tag.
+        # .descendants is already a generator, so this satisfies the memory rule.
+        for node in self.descendants:
+            yield node
 
     def handle_endtag(self, name: str, nsprefix: Optional[str] = None) -> None:
         """Called by the tree builder when an ending tag is encountered.

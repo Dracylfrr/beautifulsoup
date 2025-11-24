@@ -4,7 +4,7 @@ from bs4 import SoupReplacer   # <-- this is the new class you added inside Beau
 
 def main():
     # input and output file paths
-    input_file = "html53.html"
+    input_file = "beautifulsoup/apps/m2/html53.html"
     output_file = "output_task6.html"
 
     # Create the replacer: convert all <b> tags to <blockquote>
